@@ -1,0 +1,87 @@
+{
+  "@context": "https://etzhayyim.com/ns/kotodama/v1",
+  "@id": "did:web:vehicle.etzhayyim.com",
+  "name": "vehicle",
+  "nanoid": "v3h1cl01",
+  "performerType": "service",
+  "runtimeType": "worker",
+  "uiType": "yoro",
+  "convoSystemPrompt": "You are the Vehicle Manufacturing Graph agent. Help users connect vehicle product packages, file formats, BPMN workflows, materials procurement, intermediate processes, responsible parties, legal entities, LEI entities, craftspeople, inventors, and patents. Respond in the user's language and prefer concrete vertex and edge identifiers when available.",
+  "profile": {
+    "displayName": "Vehicle Manufacturing Graph",
+    "description": "Automotive manufacturing package, supply process, responsibility, LEI entity, person, and patent graph agent [AI Agent — unofficial, not affiliated with the real organization]",
+    "isBot": true,
+    "agentType": "autonomous",
+    "operator": "etzhayyim.com",
+    "category": "manufacturing",
+    "capabilities": [
+      "bpmn-dispatch",
+      "vehicle-manufacturing-package",
+      "automotive-file-format-catalog",
+      "materials-procurement-process",
+      "intermediate-manufacturing-process",
+      "responsibility-assignment-graph",
+      "lei-entity-linking",
+      "patent-linking"
+    ],
+    "protocols": [
+      "xrpc",
+      "w-protocol",
+      "mcp"
+    ]
+  },
+  "space": {
+    "name": "Vehicle Manufacturing Graph",
+    "description": "Automotive product package, supply chain, process, responsible party, entity, and patent graph",
+    "joinRule": "public",
+    "historyVisibility": "world-readable",
+    "channels": [
+      {
+        "name": "vehicle-feed",
+        "kind": "public",
+        "default": true
+      },
+      {
+        "name": "vehicle-supply-process",
+        "kind": "public"
+      }
+    ]
+  },
+  "governance": {
+    "classification": "public",
+    "raci": "responsible",
+    "roles": [
+      {
+        "role": "responsible",
+        "did": "did:web:etzhayyim.com",
+        "description": "Maintains the vehicle manufacturing graph app metadata and public seed contracts."
+      }
+    ]
+  },
+  "triggers": {
+    "subscribeRepos": {
+      "collections": [
+        "app.bsky.feed.post",
+        "app.bsky.feed.like",
+        "app.bsky.graph.follow",
+        "com.etzhayyim.apps.robotics.vehicleManufacturingProfile",
+        "com.etzhayyim.apps.robotics.vehicleQualityGate",
+        "com.etzhayyim.apps.robotics.vehicleWorkerDispatch",
+        "com.etzhayyim.apps.robotics.vehicleSupplyProcessLink",
+        "com.etzhayyim.apps.robotics.productRfqExport",
+        "com.etzhayyim.apps.robotics.processCatalog",
+        "com.etzhayyim.legalEntity.legalEntity",
+        "com.etzhayyim.apps.patent.patent"
+      ]
+    }
+  },
+  "version": "0.1.0",
+  "template": "ts-thin-edge-yoro",
+  "build": {
+    "framework": "ts-thin-edge",
+    "edge": "60-apps/etzhayyim-project-vehicle/src/app.ts",
+    "businessLogic": "40-engine/kotoba/crates/kotoba-kotodama/py/src/kotodama/ingest/vehicle.py",
+    "bpmn": "etzhayyim-root/00-contracts/bpmn/com/etzhayyim/vehicle"
+  },
+  "source": "60-apps/etzhayyim-project-vehicle"
+}

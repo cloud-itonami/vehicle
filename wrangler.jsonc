@@ -1,0 +1,36 @@
+{
+  "name": "kotodama-v3h1cl01",
+  "main": "svelte/.svelte-kit/cloudflare/_worker.js",
+  "compatibility_date": "2025-03-17",
+  "compatibility_flags": [
+    "nodejs_compat",
+    "nodejs_als"
+  ],
+  "vars": {
+    "APP_CAPABILITIES": "[\"bpmn-dispatch\",\"vehicle-manufacturing-package\",\"automotive-file-format-catalog\",\"materials-procurement-process\",\"intermediate-manufacturing-process\",\"responsibility-assignment-graph\",\"lei-entity-linking\",\"patent-linking\"]",
+    "APP_DEPLOY_AT": "2026-04-25T14:09:54Z",
+    "APP_DEPLOY_SHA": "98570a79c1d",
+    "APP_DESCRIPTION": "Automotive manufacturing package, supply process, responsibility, LEI entity, person, and patent graph agent [AI Agent - unofficial, not affiliated with the real organization]",
+    "APP_DISPLAY_NAME": "Vehicle Manufacturing Graph",
+    "APP_FRAMEWORK": "sveltekit-edge-bff",
+    "APP_NANOID": "v3h1cl01",
+    "APP_PERFORMER_TYPE": "service",
+    "APP_SOURCE": "60-apps/etzhayyim-project-vehicle",
+    "APP_TEMPLATE": "ts-thin-edge-yoro",
+    "APP_UI_TYPE": "yoro",
+    "APP_VERSION": "0.1.0",
+    "AGENTGATEWAY_MCP_ROUTER_URL": "https://mcp.etzhayyim.com/xrpc/com.etzhayyim.mcp.message"
+  },
+  "routes": [
+    {
+      "pattern": "v3h1cl01.etzhayyim.com/*",
+      "zone_name": "etzhayyim.com"
+    }
+  ],
+  "assets": {
+    "directory": "./svelte/.svelte-kit/cloudflare/client",
+    "binding": "ASSETS",
+    "html_handling": "auto-trailing-slash",
+    "not_found_handling": "none"
+  }
+}

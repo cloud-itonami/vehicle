@@ -1,0 +1,17 @@
+{
+  "name": "etzhayyim-project-vehicle",
+  "targets": {
+    "build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "pnpm --dir {projectRoot} build"
+      }
+    },
+    "deploy": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "pnpm --dir {projectRoot} deploy"
+      }
+    }
+  }
+}
