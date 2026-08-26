@@ -1,0 +1,23 @@
+#!/usr/bin/env nbb
+;; run_tests.cljs — vehicle の面契約検査。
+;;
+;;   nbb --classpath test run_tests.cljs
+;;
+;; vehicle は薄い edge で、business logic は MCP router と pod 側に居る。
+;; この repo の実体は『複数の面が同じ actor・同じ安全境界について同じことを
+;; 言っている』という合意なので、依存ゼロの nbb + cljs.test でそれを毎回
+;; 確かめる。抽出が空振りしたら throw する（空振りを緑にしない）。
+
+(ns run-tests
+  (:require [clojure.test :as t]
+            [vehicle.contract-test]))
+
+(def green-marker "vehicle contract: all green")
+
+(defmethod t/report [:cljs.test/default :end-run-tests] [m]
+  (if (t/successful? m)
+    (println (str "\n" green-marker))
+    (do (println "\nvehicle contract: FAILED")
+        (js/process.exit 1))))
+
+(t/run-tests 'vehicle.contract-test)
