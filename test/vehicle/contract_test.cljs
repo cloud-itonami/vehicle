@@ -7,8 +7,9 @@
   合意である:
 
     src/app.ts                          thin edge（/health・NSID guard・dispatcher 転送）
-    svelte/src/routes/xrpc/[...path]/   実際に配備される XRPC 面（MCP router 転送）
-    wrangler.jsonc                      配備（main / routes / vars）
+    src/xrpc-agentgateway-proxy.ts       退避された XRPC backend（未配線、旧 svelte/ から移動）
+    cljs/src/vehicle/app.cljs           配備される frontend（static asset、jp-go-dds/reagent/re-frame）
+    wrangler.jsonc                      配備（assets / routes / vars）
     kotodama.jsonld                     actor identity（DID / nanoid / capabilities）
     package.json                        version
     migration.edn                       抽出元の path
@@ -17,13 +18,22 @@
   —— identity 文書と worker が別の nanoid を名乗っても配備は成功し、
   fleet の逆引きが別人を指して初めて分かる。
 
-  ## 配備されるのは thin edge ではない（2026-08-26 実測）
+  ## svelte/ は cljs/ に置き換わった（2026-09-07 実測）
 
-  `wrangler.main` は SvelteKit の build 出力を指しており、`src/app.ts` は
-  配備の実行経路に**入っていない**。一方 `kotodama.build.edge` は
-  `src/app.ts` を edge として名乗る。この 2 つは別の面であり、どちらも
-  現に存在する。ここは両方を pin して、片方が動いたら見えるようにする
-  —— 「どちらが正か」はこのテストの決めることではない。
+  以前は `wrangler.main` が SvelteKit の build 出力を指し、`src/app.ts` は
+  配備の実行経路に**入っていなかった**。Svelte → ClojureScript の frontend
+  移行で `svelte/` を削除したため、その build 出力自体がもう存在しない。
+  いま `wrangler.jsonc` に `main` は無く、frontend は
+  `assets.directory: \"./cljs/public\"`（`cljs/src/vehicle/app.cljs` が
+  ビルドする static asset）として配備される。`src/app.ts` は依然として
+  `main` には指定されていない —— `env.ASSETS.fetch()` を呼ばないため、
+  そこに置くと static asset を配る者がいなくなる（UNVERIFIED:
+  `wrangler deploy`/`dev` はこの移行では実行していない）。一方
+  `kotodama.build.edge` は引き続き `src/app.ts` を edge として名乗る。
+  「実際に配備される静的 frontend」と「identity 文書が edge と名乗る面」は
+  今もなお別物であり、どちらも現に存在する。ここは両方を pin して、片方が
+  動いたら見えるようにする —— 「どちらが正か」はこのテストの決めることでは
+  ない。
 
   ## 既知の drift: CLAUDE.md（2026-08-26 実測）
 
@@ -92,7 +102,7 @@
        (#(js->clj % :keywordize-keys true))))
 
 (def app-ts       (delay (slurp-file "src/app.ts")))
-(def xrpc-route   (delay (slurp-file "svelte/src/routes/xrpc/[...path]/+server.ts")))
+(def xrpc-route   (delay (slurp-file "src/xrpc-agentgateway-proxy.ts")))
 (def kotodama     (delay (read-json "kotodama.jsonld")))
 (def wrangler     (delay (read-jsonc "wrangler.jsonc")))
 (def pkg          (delay (read-json "package.json")))
@@ -211,25 +221,38 @@
 
 ;; ─── 実際に配備される面 ─────────────────────────────────────────────────
 
-(deftest deployed-entry-is-the-sveltekit-build-not-the-thin-edge
-  (testing "配備される main と、identity 文書が edge と名乗る path は別物である"
-    (is (= "svelte/.svelte-kit/cloudflare/_worker.js" (:main @wrangler))
-        "wrangler.main は SvelteKit の build 出力")
+(deftest deployed-entry-is-static-assets-not-the-sveltekit-build
+  (testing "main は無い。frontend は cljs が焼く static asset として配備される
+            —— identity 文書が edge と名乗る path とはやはり別物である
+            （2026-09-07 実測、svelte → cljs 移行後）"
+    (is (not (contains? @wrangler :main))
+        "wrangler.jsonc に main は無い（旧 SvelteKit build 出力は削除済み）")
+    (is (= "./cljs/public" (get-in @wrangler [:assets :directory]))
+        "wrangler.assets.directory は cljs のビルド出力を指す")
+    (is (= "cljs-reagent-re-frame-jp-go-dds" (get-in @wrangler [:vars :APP_FRAMEWORK]))
+        "APP_FRAMEWORK は移行後の frontend framework を名乗る")
     (is (str/ends-with? (get-in @kotodama [:build :edge]) "/src/app.ts")
-        "kotodama.build.edge は src/app.ts を名乗る")))
+        "kotodama.build.edge は src/app.ts を名乗る（変わっていない）")))
+
+(deftest xrpc-agentgateway-proxy-carries-the-sveltekit-backend-preserved-marker
+  (testing "退避されたことが、ファイル自身から読める形で書いてある"
+    (is (str/starts-with?
+         @xrpc-route
+         "// SVELTEKIT-BACKEND-PRESERVED: moved out of svelte/ during the cljs migration; not wired.")
+        "src/xrpc-agentgateway-proxy.ts の先頭行は SVELTEKIT-BACKEND-PRESERVED マーカー")))
 
 (deftest deployed-xrpc-route-does-not-cache-and-limits-preflight
   (testing "XRPC 応答が cache されると、actor 状態が別の閲覧者へ漏れる"
     (is (present! @xrpc-route "headers.set('cache-control', 'no-store');"
-                  "svelte xrpc route" "no-store on every response")
+                  "src/xrpc-agentgateway-proxy.ts" "no-store on every response")
         "noStore が全応答に cache-control: no-store を付ける"))
   (testing "preflight は POST に閉じる"
     (is (present! @xrpc-route "'access-control-allow-methods': 'POST,OPTIONS'"
-                  "svelte xrpc route" "preflight methods")
+                  "src/xrpc-agentgateway-proxy.ts" "preflight methods")
         "許可 method は POST,OPTIONS のみ"))
   (testing "inbound の host header を上流へ持ち越さない"
     (is (present! @xrpc-route "headers.delete('host');"
-                  "svelte xrpc route" "host header stripped")
+                  "src/xrpc-agentgateway-proxy.ts" "host header stripped")
         "host は削ってから上流へ送る")))
 
 ;; ─── 既知の drift を封じ込める ─────────────────────────────────────────
@@ -254,7 +277,8 @@
 (def machine-read-surfaces
   ["src/app.ts" "wrangler.jsonc" "kotodama.jsonld" "package.json"
    "project.json" "migration.edn"
-   "svelte/src/routes/xrpc/[...path]/+server.ts"])
+   "src/xrpc-agentgateway-proxy.ts"
+   "cljs/src/vehicle/app.cljs"])
 
 (deftest stale-doc-drift-has-not-spread-to-any-machine-read-surface
   (testing "間違った nanoid が配備される面に載ると、fleet 逆引きが別人を指す"
