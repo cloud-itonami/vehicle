@@ -8,7 +8,7 @@
 // handler that proxies /xrpc/<nsid> calls to AGENTGATEWAY_MCP_ROUTER_URL as an
 // MCP `tools/call` JSON-RPC request. The migration's scope was the frontend
 // (the SvelteKit page under svelte/src/routes/+page.svelte, now
-// ../cljs/src/vehicle/app.cljs); backend TypeScript was to be left alone. It
+// ../cljs/src/vehicle/app.kotoba); backend TypeScript was to be left alone. It
 // happened to live inside the now-deleted svelte/ tree, so it is moved here
 // rather than deleted.
 //
