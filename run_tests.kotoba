@@ -1,7 +1,7 @@
-#!/usr/bin/env nbb
+#!/usr/bin/env kbb
 ;; run_tests.cljs — vehicle の面契約検査。
 ;;
-;;   nbb --classpath test run_tests.cljs
+;;   kbb --backend sci --classpath test run_tests.cljs
 ;;
 ;; vehicle は薄い edge で、business logic は MCP router と pod 側に居る。
 ;; この repo の実体は『複数の面が同じ actor・同じ安全境界について同じことを
