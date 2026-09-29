@@ -35,15 +35,15 @@
   動いたら見えるようにする —— 「どちらが正か」はこのテストの決めることでは
   ない。
 
-  ## 既知の drift: CLAUDE.md（2026-08-26 実測）
+  ## 既知の drift: AGENTS.md（2026-08-26 実測）
 
-  `CLAUDE.md` は**別のアプリ**（vehicle ownership registry、nanoid
+  `AGENTS.md` は**別のアプリ**（vehicle ownership registry、nanoid
   `vh1cl3rk`、`wasm/` 配下の component）を記述している。この repo に
   `wasm/` は 1 ファイルも無く、他の 6 面はすべて Vehicle Manufacturing
-  Graph / `v3h1cl01` で一致している。CLAUDE.md は identity 契約から
+  Graph / `v3h1cl01` で一致している。AGENTS.md は identity 契約から
   外してあるが、**外したことを黙らせない**ために `known-stale-docs` に
   明示し、①その値が今も其処に在ること ②機械が読む面へ漏れていないこと
-  の両方を検査する。CLAUDE.md を直した人は、このテストが赤くなることで
+  の両方を検査する。AGENTS.md を直した人は、このテストが赤くなることで
   『例外表から外して契約に入れる』ところまで手が届く。
 
   ## 抽出の床
@@ -258,21 +258,21 @@
 ;; ─── 既知の drift を封じ込める ─────────────────────────────────────────
 
 (def stale-identifier
-  "CLAUDE.md が名乗る、この repo のものではない nanoid。機械が読む面へ
+  "AGENTS.md が名乗る、この repo のものではない nanoid。機械が読む面へ
    1 文字でも漏れたら fleet 逆引きが別人を指す。"
   "vh1cl3rk")
 
 (def known-stale-docs
-  "2026-08-26 実測。CLAUDE.md は別アプリ（ownership registry / nanoid
+  "2026-08-26 実測。AGENTS.md は別アプリ（ownership registry / nanoid
    vh1cl3rk / wasm 配下の component）を記述しており、この repo に wasm/ は
    1 ファイルも無い。identity 契約からは外すが、**外したことを黙らせない**。
-   CLAUDE.md を直したらこのテストが赤くなる —— そのときは此処から外して
+   AGENTS.md を直したらこのテストが赤くなる —— そのときは此処から外して
    actor-identity-agrees-across-surfaces に入れる。
 
    値は **1 箇所しか出てこない anchor** にする。bare な `vh1cl3rk` は
-   CLAUDE.md に 4 回出るので、1 行だけ直した編集を『まだ古いまま』と
+   AGENTS.md に 4 回出るので、1 行だけ直した編集を『まだ古いまま』と
    読んでしまう —— 部分的に直った文書は、直っていない文書と同じ顔をする。"
-  {"CLAUDE.md" "https://vh1cl3rk.etzhayyim.com/health"})
+  {"AGENTS.md" "https://vh1cl3rk.etzhayyim.com/health"})
 
 (def machine-read-surfaces
   ["src/app.ts" "wrangler.jsonc" "kotodama.jsonld" "package.json"
